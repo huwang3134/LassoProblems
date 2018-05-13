@@ -22,6 +22,7 @@ warm.start=function(X,y,lambda.max=100,standardize=TRUE){
   lambda.seq=seq(lambda.max,1,-dec)
   r=length(lambda.seq)
   coef.seq=matrix(nrow=r,ncol=p)
+  beta=array(0,dim=p)
   k=0
   for(lambda in lambda.seq){
     k=k+1
@@ -39,12 +40,26 @@ warm.start=function(X,y,lambda.max=100,standardize=TRUE){
       for(j in 1:p){
         beta[j]=beta[j]/scale[j]
       }
-      for(j in 1:p){
-        coef.seq[k,j]=beta[j]
-      }
+    }
+    for(j in 1:p){
+      coef.seq[k,j]=beta[j]#???
     }
   }
   return(coef.seq)
 }
 
-warm.start(X,y)
+lambda.max=100
+dec=round(lambda.max/50)
+lambda.seq=seq(lambda.max,1,-dec)
+
+crime=read.table("crime.txt")
+X=crime[,3:7]
+y=crime[,1]
+coef.seq=warm.start(X,y,300)
+plot(log(lambda.seq),coef.seq[,1],
+     xlab="log(lambda",ylab="coeficient",ylim=c(min(coef.seq),max(coef.seq)))
+
+for(j in 1:p){
+  par(new)
+  lines(log(lambda.seq),coef.seq[,j],col=j)
+}
