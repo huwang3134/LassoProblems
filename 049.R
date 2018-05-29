@@ -1,0 +1,26 @@
+data(iris)
+df=iris
+x=as.matrix(df[,1:4])
+y=as.vector(df[,5])
+y=as.numeric(y=="setosa")
+cv=cv.glmnet(x,y,family="binomial")
+cv2=cv.glmnet(x,y,family="binomial",type.measure="class")
+par(mfrow=c(1,2))
+plot(cv)
+plot(cv2)
+par(mfrow=c(1,1))
+lambda=cv$lambda.min
+result=glmnet(x,y,lambda=lambda,family="binomial")
+beta=result$beta
+beta.0=result$a0
+f=function(x){
+  beta.0+x%*%beta
+}
+g=function(x){
+  exp(f(x))/(1+exp(f(x)))
+}
+z=array(dim=150)
+for(i in 1:150){
+  z[i]=drop(g(x[i,]))
+}
+y==(z>0.5)
